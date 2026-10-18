@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+  <html lang="es">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Keren Mass — Materia Prima</title>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+      <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { font-family: 'Segoe UI', sans-serif; background-color: #f7f7f7; min-height: 100vh; display: flex; }
+
+          .sidebar { width: 260px; min-height: 100vh; background-color: #1c1c1c; display: flex; flex-direction: column; position: fixed; top: 0;
+  left: 0; }
+          .sidebar-logo { padding: 30px 25px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+          .sidebar-logo img { width: 140px; filter: invert(1); }
+          .sidebar-role { color: rgba(255,255,255,0.35); font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; margin-top: 6px; }
+          .sidebar-nav { flex: 1; padding: 20px 0; }
+          .nav-section { color: rgba(255,255,255,0.25); font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; padding: 10px 25px
+  6px; }
+          .sidebar-nav a { display: flex; align-items: center; gap: 12px; padding: 11px 25px; color: rgba(255,255,255,0.6); text-decoration:
+  none; font-size: 0.9rem; transition: all 0.2s; border-left: 3px solid transparent; }
+          .sidebar-nav a:hover { color: #fff; background: rgba(255,255,255,0.06); border-left-color: #fff; }
+          .sidebar-nav a.active { color: #fff; background: rgba(255,255,255,0.08); border-left-color: #fff; }
+          .sidebar-nav a i { font-size: 1rem; width: 20px; }
+          .sidebar-footer { padding: 20px 25px; border-top: 1px solid rgba(255,255,255,0.08); }
+          .user-info { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+          .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center;
+  justify-content: center; color: #fff; font-size: 0.9rem; }
+          .user-name { color: #fff; font-size: 0.88rem; font-weight: 600; }
+          .user-role { color: rgba(255,255,255,0.35); font-size: 0.75rem; }
+          .btn-cerrar { width: 100%; padding: 9px; background: transparent; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color:
+  rgba(255,255,255,0.5); font-size: 0.85rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+  gap: 8px; }
+          .btn-cerrar:hover { background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.3); }
+
+          .main-content { margin-left: 260px; flex: 1; padding: 40px; }
+          .page-header { margin-bottom: 28px; }
+          .page-header h1 { font-size: 1.5rem; font-weight: 700; color: #1c1c1c; }
+          .page-header p { color: #999; font-size: 0.9rem; margin-top: 4px; }
+
+          .card-seccion { background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; overflow: hidden; margin-bottom: 24px; }
+          .card-seccion-header { padding: 14px 24px; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; gap: 10px; }
+          .card-seccion-header h5 { font-size: 0.92rem; font-weight: 600; color: #1c1c1c; margin: 0; text-transform: uppercase; letter-spacing:
+  0.5px; }
+          .card-seccion-header i { color: #1c1c1c; font-size: 1rem; }
+          .card-seccion-body { padding: 24px; }
+
+          .form-label { font-size: 0.78rem; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 5px;
+  display: block; }
+          .form-control, .form-select { border: 1.5px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem; padding: 10px 13px; color: #1c1c1c;
+  transition: border 0.2s; width: 100%; margin-bottom: 16px; }
+          .form-control:focus, .form-select:focus { border-color: #1c1c1c; outline: none; box-shadow: none; }
+
+          .btn-registrar { width: 100%; padding: 11px; background: #1c1c1c; color: #fff; border: none; border-radius: 6px; font-size: 0.9rem;
+  font-weight: 600; cursor: pointer; transition: background 0.2s; }
+          .btn-registrar:hover { background: #333; }
+
+          .filtros { display: flex; gap: 12px; margin-bottom: 18px; }
+          .filtros input { flex: 1; border: 1.5px solid #e0e0e0; border-radius: 6px; font-size: 0.88rem; padding: 9px 13px; color: #1c1c1c;
+  outline: none; transition: border 0.2s; }
+          .filtros input:focus { border-color: #1c1c1c; }
+          .btn-actualizar { padding: 9px 18px; background: transparent; border: 1.5px solid #e0e0e0; border-radius: 6px; color: #555; font-size:
+  0.85rem; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+          .btn-actualizar:hover { border-color: #1c1c1c; color: #1c1c1c; }
+
+          table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+          thead th { background: #1c1c1c; color: #fff; padding: 11px 14px; font-weight: 500; font-size: 0.78rem; letter-spacing: 0.5px;
+  text-align: left; white-space: nowrap; }
+          tbody tr { border-bottom: 1px solid #f0f0f0; transition: background 0.15s; }
+          tbody tr:hover { background: #fafafa; }
+          tbody tr.stock-bajo { background: #fffbeb; }
+          tbody tr.stock-bajo:hover { background: #fef9e0; }
+          tbody td { padding: 11px 14px; color: #333; vertical-align: middle; }
+      </style>
+  </head>
+
+<body>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+	const tokenGuardado = localStorage.getItem("TokenUsiario");
+	
+	if (!tokenGuardado) {
+        alert("No has iniciado sesión.");
+        window.location.replace("index.html");
+        return;
+    }
+    const usuario={
+    	token: parseInt(tokenGuardado)
+    };
+    
+    fetch("http://localhost:8080/api/usuario/valida", {
+    	method: "POST",
+    	headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify(usuario)
+	})
+    .then(response=>{
+		if(response.ok) {
+			return response.text();
+		}else{
+			throw new Error("Inicia secion primero");
+			window.location.replace("index.html");
+		}
+	})
+	.then(rolRecibido => {
+		const nombre=rolRecibido;
+		document.getElementById("mostrarNombre").textContent = nombre;   
+    })
+    .catch(error => {
+        console.error("Error en la petición:", error);
+        alert("No se pudo conectar con el servidor");
+        window.location.replace("index.html"); 
+    });
+    
+    
+    fetch("http://localhost:8080/api/usuario/valida_token", {
+    	method: "POST",
+    	headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify(usuario)
+	})
+    .then(response=>{
+		if(response.ok) {
+			return response.text();
+		}else{
+			throw new Error("Inicia secion primero");
+			window.location.replace("index.html");
+		}
+	})
+	.then(token => {
+		token_obtenido = parseInt(token);
+		token_html=parseInt(tokenGuardado);
+		if(token_obtenido==token_html){
+			
+		}else{
+			alert("No has iniciado sesión.");
+        	window.location.replace("index.html");
+        	return;
+		}
+    })
+    .catch(error => {
+        console.error("Error en la petición:", error);
+        alert("No se pudo conectar con el servidor");
+        window.location.replace("index.html"); 
+    });
+    
+    fetch("http://localhost:8080/api/usuario/valida_rol", {
+    	method: "POST",
+    	headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify(usuario)
+	})
+    .then(response=>{
+		if(response.ok) {
+			return response.text();
+		}else{
+			throw new Error("Inicia secion primero");
+			window.location.replace("index.html");
+		}
+	})
+	.then(rolRecibido => {
+		
+		if (rolRecibido === "vendedor") {      
+			window.location.href = "menu_vendedor.html";      
+        } else if (rolRecibido === "logistica") {
+        } else if(rolRecibido === "administrador"){
+            window.location.href = "administrador.html";
+        }else{
+        	window.location.href = "index.html"
+        }
+    })
+    .catch(error => {
+        console.error("Error en la petición:", error);
+        alert("No se pudo conectar con el servidor");
+        window.location.replace("index.html"); 
+    });
+    cargarMateriasPrimas();
+});
+
+</script>
+   <!-- SIDEBAR -->
+  <div class="sidebar">
+      <div class="sidebar-logo">
+          <img src="img/logo_ec3.png" alt="Keren Mass">
+          <div class="sidebar-role">Logística</div>
+      </div>
+      <nav class="sidebar-nav">
+          <div class="nav-section">Módulos</div>
+          <a href="#" onclick="window.location.replace('menu_logistica.html')">
+              <i class="bi bi-house"></i> Inicio
+          </a>
+          <a href="#" onclick="window.location.replace('materia_prima.html')" class="active">
+              <i class="bi bi-boxes"></i> Materia Prima
+          </a>
+          <a href="#" onclick="window.location.replace('producto.html')">
+              <i class="bi bi-box-seam"></i> Producto
+          </a>
+          <a href="#" onclick="window.location.replace('produccion.html')">
+              <i class="bi bi-gear"></i> Producción
+          </a>
+          <a href="#" onclick="window.location.replace('cotizacion.html')">
+              <i class="bi bi-file-earmark-text"></i> Cotización
+          </a>
+          <a href="#" onclick="window.location.replace('proveedores.html')">
+              <i class="bi bi-truck"></i> Proveedores
+          </a>
+          <a href="#" onclick="window.location.replace('compra.html')">
+              <i class="bi bi-cart3"></i> Compra
+          </a>
+      </nav>
+      <div class="sidebar-footer">
+          <div class="user-info">
+              <div class="user-avatar"><i class="bi bi-person"></i></div>
+              <div>
+                  <div class="user-name" id="mostrarNombre">—</div>
+                  <div class="user-role">Logística</div>
+              </div>
+          </div>
+          <button class="btn-cerrar" onclick="borrar_token()">
+              <i class="bi bi-box-arrow-left"></i> Cerrar sesión
+          </button>
+      </div>
+  </div>
+
+  <!-- CONTENIDO -->
+  <div class="main-content">
+      <div class="page-header">
+          <h1>Materia Prima</h1>
+          <p>Registra y consulta el inventario de materias primas</p>
+      </div>
+
+      <div class="row g-4">
+
+          <!-- Formulario -->
+          <div class="col-md-4">
+              <div class="card-seccion">
+                  <div class="card-seccion-header">
+                      <i class="bi bi-plus-circle"></i>
+                      <h5>Registrar</h5>
+                  </div>
+                  <div class="card-seccion-body">
+                      <form id="formMateriaPrima">
+                          <label class="form-label">Nombre</label>
+                          <input type="text" id="nombre" class="form-control" placeholder="Ej: Tela drill">
+
+                          <label class="form-label">Unidad de medida</label>
+                          <select id="unidad" class="form-select">
+                              <option value="">-- Seleccione --</option>
+                              <option value="Metro">Metro (m)</option>
+                              <option value="Metro cuadrado">Metro cuadrado (m²)</option>
+                              <option value="Centímetro">Centímetro (cm)</option>
+                              <option value="Kilogramo">Kilogramo (kg)</option>
+                              <option value="Gramo">Gramo (g)</option>
+                              <option value="Unidad">Unidad (und)</option>
+                              <option value="Rollo">Rollo</option>
+                              <option value="Docena">Docena</option>
+                              <option value="Par">Par</option>
+                              <option value="Bolsa">Bolsa</option>
+                          </select>
+
+                          <label class="form-label">Stock inicial</label>
+                          <input type="number" id="stock" class="form-control" step="0.01" placeholder="0.00">
+
+                          <label class="form-label">Precio Unitario (S/.)</label>
+                          <input type="number" id="precio_unitario" class="form-control" step="0.01" placeholder="0.00">
+
+                          <label class="form-label">Stock Mínimo</label>
+                          <input type="number" id="stock_minimo" class="form-control" step="0.01" placeholder="0.00">
+
+                          <button type="button" class="btn-registrar" onclick="registrar_producto()">
+                              <i class=""></i> Registrar Materia Prima
+                          </button>
+                      </form>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Tabla -->
+          <div class="col-md-8">
+              <div class="card-seccion">
+                  <div class="card-seccion-header">
+                      <i class="bi bi-table"></i>
+                      <h5>Inventario</h5>
+                  </div>
+                  <div class="card-seccion-body">
+                      <div class="filtros">
+                          <input type="text" id="buscador"
+                                 placeholder="Buscar por código, nombre o unidad..."
+                                 oninput="filtrarTabla()">
+                          <button class="btn-actualizar" onclick="cargarMateriasPrimas()">
+                              <i class="bi bi-arrow-clockwise"></i> Actualizar
+                          </button>
+                      </div>
+                      <div style="overflow-x: auto;">
+                          <table>
+                              <thead>
+                                  <tr>
+                                      <th>Código</th>
+                                      <th>Nombre</th>
+                                      <th>Unidad</th>
+                                      <th>Stock</th>
+                                      <th>Stock Mínimo</th>
+                                      <th>Precio Unit. (S/.)</th>
+                                      <th>Estado</th>
+                                  </tr>
+                              </thead>
+                              <tbody id="tbodyMateriasPrimas">
+                                  <tr><td colspan="7" style="text-align:center;color:#999;padding:20px;">Cargando...</td></tr>
+                              </tbody>
+                          </table>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+      </div>
+  </div>
+<script>
+let todasLasMaterias = [];
+function borrar_token(){
+      	localStorage.removeItem("TokenUsiario");
+      	window.location.replace("index.html");
+}
+
+function registrar_producto(){
+	const nombre = document.getElementById("nombre").value;
+    const unidad = document.getElementById("unidad").value;
+    const precio = parseFloat(document.getElementById("precio_unitario").value);
+    const stockMin = parseFloat(document.getElementById("stock_minimo").value);
+
+    if (!nombre) { alert("El nombre es obligatorio."); return; }
+    if (!unidad || unidad === "") { alert("Seleccione una unidad de medida."); return; }
+    if (isNaN(precio) || precio <= 0) { alert("El precio unitario debe ser mayor a 0."); return; }
+    if (isNaN(stockMin) || stockMin <= 0) { alert("El stock mínimo debe ser mayor a 0."); return; }
+    
+	const materia_prima = {
+        op: "I",
+        nombreMp: document.getElementById("nombre").value,
+        unidadMp: document.getElementById("unidad").value,
+        stockMp: parseFloat(document.getElementById("stock").value) || 0.0,
+        precioUnitario: parseFloat(document.getElementById("precio_unitario").value) || 0.0,
+        stockMinimo: parseFloat(document.getElementById("stock_minimo").value) || 0.0
+    };
+    
+    fetch("http://localhost:8080/api/usuario/registrar_materia_prima",{
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify(materia_prima)
+	})
+	 .then(() => {
+      alert("Materia prima registrada.");
+      document.getElementById('formMateriaPrima').reset();
+      cargarMateriasPrimas(); // 👈 recarga la tabla
+    });
+}
+
+
+
+  function cargarMateriasPrimas() {
+      fetch("http://localhost:8080/api/usuario/materias-primas")
+      .then(res => res.json())
+      .then(materias => {
+          todasLasMaterias = materias;
+          renderizarTabla(materias);
+      })
+      .catch(() => alert("Error al cargar las materias primas."));
+  }
+
+  function renderizarTabla(materias) {
+      const tbody = document.getElementById('tbodyMateriasPrimas');
+      tbody.innerHTML = "";
+
+      if (materias.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No hay materias primas registradas.</td></tr>`;
+          return;
+      }
+
+      materias.forEach(m => {
+          // m viene como objeto con propiedades: idMateriaPrima, nombreMp, unidadMp, stockMp, precioUnitario, stockMinimo
+          const stockBajo = m.stockMp <= m.stockMinimo;
+          const estadoBadge = stockBajo
+              ? `<span class="badge bg-danger">Stock Bajo</span>`
+              : `<span class="badge bg-success">OK</span>`;
+
+          const fila = document.createElement('tr');
+          if (stockBajo) fila.classList.add('table-warning');
+          fila.innerHTML = `
+              <td><strong>${m.idMateriaPrima}</strong></td>
+              <td>${m.nombreMp}</td>
+              <td>${m.unidadMp}</td>
+              <td class="text-center">${m.stockMp}</td>
+              <td class="text-center">${m.stockMinimo}</td>
+              <td class="text-center font-monospace">S/. ${parseFloat(m.precioUnitario).toFixed(2)}</td>
+              <td class="text-center">${estadoBadge}</td>`;
+          tbody.appendChild(fila);
+      });
+  }
+
+  function filtrarTabla() {
+      const texto = document.getElementById('buscador').value.toLowerCase();
+      const filtradas = todasLasMaterias.filter(m =>
+          (m.idMateriaPrima + "").toLowerCase().includes(texto) ||
+          (m.nombreMp + "").toLowerCase().includes(texto) ||
+          (m.unidadMp + "").toLowerCase().includes(texto)
+      );
+      renderizarTabla(filtradas);
+  }
+</script>
+</body>
+</html>

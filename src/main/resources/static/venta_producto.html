@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+  <html lang="es">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Keren Mass — Nueva Venta</title>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+      <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { font-family: 'Segoe UI', sans-serif; background-color: #f7f7f7; min-height: 100vh; display: flex; }
+
+          /* SIDEBAR */
+          .sidebar { width: 260px; min-height: 100vh; background-color: #1c1c1c; display: flex; flex-direction: column; position: fixed; top: 0;
+  left: 0; }
+          .sidebar-logo { padding: 30px 25px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+          .sidebar-logo img { width: 140px; filter: invert(1); }
+          .sidebar-role { color: rgba(255,255,255,0.35); font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; margin-top: 6px; }
+          .sidebar-nav { flex: 1; padding: 20px 0; }
+          .nav-section { color: rgba(255,255,255,0.25); font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; padding: 10px 25px
+  6px; }
+          .sidebar-nav a { display: flex; align-items: center; gap: 12px; padding: 11px 25px; color: rgba(255,255,255,0.6); text-decoration:
+  none; font-size: 0.9rem; transition: all 0.2s; border-left: 3px solid transparent; }
+          .sidebar-nav a:hover { color: #fff; background: rgba(255,255,255,0.06); border-left-color: #fff; }
+          .sidebar-nav a.active { color: #fff; background: rgba(255,255,255,0.08); border-left-color: #fff; }
+          .sidebar-nav a i { font-size: 1rem; width: 20px; }
+          .sidebar-footer { padding: 20px 25px; border-top: 1px solid rgba(255,255,255,0.08); }
+          .user-info { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+          .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center;
+  justify-content: center; color: #fff; font-size: 0.9rem; }
+          .user-name { color: #fff; font-size: 0.88rem; font-weight: 600; }
+          .user-role { color: rgba(255,255,255,0.35); font-size: 0.75rem; }
+          .btn-cerrar { width: 100%; padding: 9px; background: transparent; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color:
+  rgba(255,255,255,0.5); font-size: 0.85rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+  gap: 8px; }
+          .btn-cerrar:hover { background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.3); }
+
+          /* CONTENIDO */
+          .main-content { margin-left: 260px; flex: 1; padding: 40px; }
+          .page-header { margin-bottom: 28px; }
+          .page-header h1 { font-size: 1.5rem; font-weight: 700; color: #1c1c1c; }
+          .page-header p { color: #999; font-size: 0.9rem; margin-top: 4px; }
+
+          /* CARDS */
+          .card-seccion { background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; overflow: hidden; margin-bottom: 24px; }
+          .card-seccion-header { padding: 14px 24px; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; gap: 10px; }
+          .card-seccion-header h5 { font-size: 0.92rem; font-weight: 600; color: #1c1c1c; margin: 0; text-transform: uppercase; letter-spacing:
+  0.5px; }
+          .card-seccion-header i { color: #1c1c1c; font-size: 1rem; }
+          .card-seccion-body { padding: 24px; }
+
+          /* FORM */
+          .form-label { font-size: 0.78rem; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 5px;
+  display: block; }
+          .form-control, .form-select { border: 1.5px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem; padding: 10px 13px; color: #1c1c1c;
+  transition: border 0.2s; }
+          .form-control:focus, .form-select:focus { border-color: #1c1c1c; outline: none; box-shadow: none; }
+          .form-control[readonly] { background: #f7f7f7; color: #888; }
+
+          /* TABLA PRODUCTOS */
+          .buscador-prod { border: 1.5px solid #e0e0e0; border-radius: 6px; font-size: 0.88rem; padding: 9px 13px; width: 100%; outline: none;
+  margin-bottom: 14px; transition: border 0.2s; }
+          .buscador-prod:focus { border-color: #1c1c1c; }
+
+          .tabla-productos-wrapper { max-height: 240px; overflow-y: auto; border: 1px solid #e8e8e8; border-radius: 6px; margin-bottom: 20px; }
+          table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+          thead th { background: #1c1c1c; color: #fff; padding: 10px 14px; font-weight: 500; font-size: 0.78rem; letter-spacing: 0.5px;
+  text-align: left; position: sticky; top: 0; }
+          tbody tr { border-bottom: 1px solid #f0f0f0; transition: background 0.15s; }
+          tbody tr:hover { background: #fafafa; }
+          tbody td { padding: 10px 14px; color: #333; vertical-align: middle; }
+          tbody tr.seleccionada { background: #f5f5f5; }
+
+          .btn-sel { background: #1c1c1c; color: #fff; border: none; border-radius: 5px; padding: 5px 12px; font-size: 0.8rem; cursor: pointer;
+  transition: background 0.2s; }
+          .btn-sel:hover { background: #333; }
+
+          /* TOTALES */
+          .totales-box { background: #f7f7f7; border: 1px solid #e8e8e8; border-radius: 8px; padding: 20px 24px; }
+          .totales-row { display: flex; justify-content: space-between; font-size: 0.9rem; color: #555; margin-bottom: 10px; }
+          .totales-row.total-final { font-size: 1.05rem; font-weight: 700; color: #1c1c1c; border-top: 1px solid #e0e0e0; padding-top: 12px;
+  margin-top: 4px; }
+
+          /* BOTONES ACCIÓN */
+          .btn-cancelar { padding: 11px 24px; background: transparent; border: 1.5px solid #ccc; border-radius: 6px; color: #666; font-size:
+  0.9rem; cursor: pointer; transition: all 0.2s; }
+          .btn-cancelar:hover { border-color: #999; color: #333; }
+          .btn-guardar { padding: 11px 28px; background: #1c1c1c; border: none; border-radius: 6px; color: #fff; font-size: 0.9rem; font-weight:
+  600; cursor: pointer; transition: background 0.2s; }
+          .btn-guardar:hover { background: #333; }
+          .btn-agregar { padding: 10px 18px; background: #1c1c1c; border: none; border-radius: 6px; color: #fff; font-size: 0.88rem; cursor:
+  pointer; transition: background 0.2s; width: 100%; }
+          .btn-agregar:hover { background: #333; }
+          .btn-eliminar { background: transparent; border: 1.5px solid #e0e0e0; border-radius: 5px; padding: 4px 10px; color: #999; cursor:
+  pointer; transition: all 0.2s; font-size: 0.85rem; }
+          .btn-eliminar:hover { border-color: #c0392b; color: #c0392b; }
+      </style>
+  </head>
+<body>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+	const tokenGuardado = localStorage.getItem("TokenUsiario");
+	if (!tokenGuardado) {
+        alert("No has iniciado sesión.");
+        window.location.replace("index.html");
+        return;
+    }
+    const usuario={
+    	token: parseInt(tokenGuardado)
+    };
+    
+    fetch("http://localhost:8080/api/usuario/valida", {
+    	method: "POST",
+    	headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify(usuario)
+	})
+    .then(response=>{
+		if(response.ok) {
+			return response.text();
+		}else{
+			throw new Error("Inicia secion primero");
+			window.location.replace("index.html");
+		}
+	})
+	.then(rolRecibido => {
+		const nombre=rolRecibido;
+		document.getElementById("mostrarNombre").textContent = nombre;       
+    })
+    .catch(error => {
+        console.error("Error en la petición:", error);
+        alert("No se pudo conectar con el servidor");
+        window.location.replace("index.html"); 
+    });
+    
+    fetch("http://localhost:8080/api/usuario/valida_token", {
+    	method: "POST",
+    	headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify(usuario)
+	})
+    .then(response=>{
+		if(response.ok) {
+			return response.text();
+		}else{
+			throw new Error("Inicia secion primero");
+			window.location.replace("index.html");
+		}
+	})
+	.then(token => {
+		token_obtenido = parseInt(token);
+		token_html=parseInt(tokenGuardado);
+		if(token_obtenido==token_html){
+			
+		}else{
+			alert("No has iniciado sesión.");
+        	window.location.replace("index.html");
+        	return;
+		}
+    })
+    .catch(error => {
+        console.error("Error en la petición:", error);
+        alert("No se pudo conectar con el servidor");
+        window.location.replace("index.html"); 
+    });
+    
+    fetch("http://localhost:8080/api/usuario/valida_rol", {
+    	method: "POST",
+    	headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify(usuario)
+	})
+    .then(response=>{
+		if(response.ok) {
+			return response.text();
+		}else{
+			throw new Error("Inicia secion primero");
+			window.location.replace("index.html");
+		}
+	})
+	.then(rolRecibido => {
+		
+		if (rolRecibido === "vendedor") {            
+        } else if (rolRecibido === "logistica") {
+            window.location.href = "menu_logistica.html";
+        } else if(rolRecibido === "administrador"){
+            window.location.href = "administrador.html";
+        }else{
+        	window.location.href = "index.html"
+        }
+    })
+    .catch(error => {
+        console.error("Error en la petición:", error);
+        alert("No se pudo conectar con el servidor");
+        window.location.replace("index.html"); 
+    });
+    
+    
+    // Cargar productos desde el backend
+  fetch("http://localhost:8080/api/venta/productos")
+      .then(res => res.json())
+      .then(productos => {
+          todosLosProductos = productos;
+      	  renderizarTablaProductos(productos);
+      });
+      
+      
+      //obtener el id del usuario
+    fetch("http://localhost:8080/api/usuario/valida_id_usuario", {
+    	method: "POST",
+    	headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify(usuario)
+	})
+    .then(response=>{
+		if(response.ok) {
+			return response.text();
+		}else{
+			throw new Error("Inicia secion primero");
+			window.location.replace("index.html");
+		}
+	})
+	.then(id_recibido => {
+		idUsuarioActual = parseInt(id_recibido);
+    })
+    .catch(error => {
+        console.error("Error en la petición:", error);
+        alert("No se pudo conectar con el servidor");
+        window.location.replace("index.html"); 
+    });
+    
+    
+    
+});
+</script>
+<!-- SIDEBAR -->
+  <div class="sidebar">
+      <div class="sidebar-logo">
+          <img src="img/logo_ec3.png" alt="Keren Mass">
+          <div class="sidebar-role">Vendedor</div>
+      </div>
+      <nav class="sidebar-nav">
+          <div class="nav-section">Módulos</div>
+          <a href="#" onclick="window.location.replace('menu_vendedor.html')">
+              <i class="bi bi-house"></i> Inicio
+          </a>
+          <a href="#" onclick="window.location.replace('venta_producto.html')" class="active">
+              <i class="bi bi-cart-plus"></i> Nueva Venta
+          </a>
+      </nav>
+      <div class="sidebar-footer">
+          <div class="user-info">
+              <div class="user-avatar"><i class="bi bi-person"></i></div>
+              <div>
+                  <div class="user-name" id="mostrarNombre">—</div>
+                  <div class="user-role">Vendedor</div>
+              </div>
+          </div>
+          <button class="btn-cerrar" onclick="borrar_token()">
+              <i class="bi bi-box-arrow-left"></i> Cerrar sesión
+          </button>
+      </div>
+  </div>
+
+  <!-- CONTENIDO -->
+  <div class="main-content">
+      <div class="page-header">
+          <h1>Nueva Venta</h1>
+          <p>Registra una nueva venta y genera el comprobante</p>
+      </div>
+
+      <!-- Datos del cliente -->
+      <div class="card-seccion">
+          <div class="card-seccion-header">
+              <i class="bi bi-person"></i>
+              <h5>Datos del Cliente</h5>
+          </div>
+          <div class="card-seccion-body">
+              <form id="formVenta">
+                  <div class="row g-3">
+                      <div class="col-md-3">
+                          <label class="form-label">Tipo Comprobante</label>
+                          <select id="tipoComprobante" class="form-select" required>
+                              <option value="BOLETA">Boleta</option>
+                              <option value="FACTURA">Factura</option>
+                          </select>
+                      </div>
+                      <div class="col-md-3">
+                          <label class="form-label">Método de Pago</label>
+                          <select id="metodoPago" class="form-select" required>
+                              <option value="EFECTIVO">Efectivo</option>
+                              <option value="TARJETA">Tarjeta de Crédito/Débito</option>
+                              <option value="YAPE">Yape</option>
+                              <option value="PLIN">Plin</option>
+                          </select>
+                      </div>
+                      <div class="col-md-3">
+                          <label class="form-label">Tipo Documento</label>
+                          <select id="tipoDocumento" class="form-select" required>
+                              <option value="DNI">DNI</option>
+                              <option value="RUC">RUC</option>
+                          </select>
+                      </div>
+                      <div class="col-md-3">
+                          <label class="form-label">Nro. Documento</label>
+                          <input type="text" id="numDocumento" class="form-control" placeholder="12345678" required>
+                      </div>
+                      <div class="col-md-6">
+                          <label class="form-label">Cliente (Nombre o Razón Social)</label>
+                          <input type="text" id="clienteNombre" class="form-control" placeholder="Juan Pérez / Empresa S.A.C." required>
+                      </div>
+                      <div class="col-md-6">
+                          <label class="form-label">Dirección (Opcional)</label>
+                          <input type="text" id="clienteDireccion" class="form-control" placeholder="Av. Las Flores 123">
+                      </div>
+                  </div>
+              </form>
+          </div>
+      </div>
+
+      <!-- Selección de productos -->
+      <div class="card-seccion">
+          <div class="card-seccion-header">
+              <i class="bi bi-box-seam"></i>
+              <h5>Agregar Productos</h5>
+          </div>
+          <div class="card-seccion-body">
+              <input type="text" id="buscadorProducto" class="buscador-prod"
+                     placeholder="Buscar producto por nombre o código..."
+                     oninput="filtrarProductos()">
+
+              <div class="tabla-productos-wrapper">
+                  <table>
+                      <thead>
+                          <tr>
+                              <th>Código</th>
+                              <th>Nombre</th>
+                              <th>Precio (S/.)</th>
+                              <th>Stock</th>
+                              <th>Acción</th>
+                          </tr>
+                      </thead>
+                      <tbody id="tbodyProductos">
+                          <tr><td colspan="5" style="text-align:center;color:#999;padding:16px;">Cargando productos...</td></tr>
+                      </tbody>
+                  </table>
+              </div>
+
+              <div class="row g-3 align-items-end">
+                  <div class="col-md-5">
+                      <label class="form-label">Producto Seleccionado</label>
+                      <input type="text" id="productoSeleccionadoNombre" class="form-control"
+                             readonly placeholder="Ninguno seleccionado">
+                  </div>
+                  <div class="col-md-3">
+                      <label class="form-label">Precio Unitario (S/.)</label>
+                      <input type="number" id="precioUnitario" class="form-control" readonly>
+                  </div>
+                  <div class="col-md-2">
+                      <label class="form-label">Cantidad</label>
+                      <input type="number" id="cantidad" class="form-control" value="1" min="1">
+                  </div>
+                  <div class="col-md-2">
+                      <button class="btn-agregar" onclick="agregarProducto()">
+                          <i class="bi bi-plus-circle"></i> Agregar
+                      </button>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <!-- Detalle y totales -->
+      <div class="card-seccion">
+          <div class="card-seccion-header">
+              <i class="bi bi-receipt"></i>
+              <h5>Detalle de la Venta</h5>
+          </div>
+          <div class="card-seccion-body">
+              <div style="overflow-x:auto; margin-bottom: 24px;">
+                  <table>
+                      <thead>
+                          <tr>
+                              <th>Código</th>
+                              <th>Producto</th>
+                              <th>Precio Unitario</th>
+                              <th>Cantidad</th>
+                              <th>Subtotal</th>
+                              <th>Acción</th>
+                          </tr>
+                      </thead>
+                      <tbody id="tbodyDetalle">
+                          <tr>
+                              <td colspan="6" style="text-align:center;color:#999;padding:20px;">No hay productos agregados a la venta.</td>
+                          </tr>
+                      </tbody>
+                  </table>
+              </div>
+
+              <div class="row justify-content-end">
+                  <div class="col-md-4">
+                      <div class="totales-box">
+                          <div class="totales-row">
+                              <span>Total Gravado:</span>
+                              <span id="txtTotalGravado">S/. 0.00</span>
+                          </div>
+                          <div class="totales-row">
+                              <span>IGV (18%):</span>
+                              <span id="txtIgv">S/. 0.00</span>
+                          </div>
+                          <div class="totales-row total-final">
+                              <span>Total a Pagar:</span>
+                              <span id="txtTotalPagar">S/. 0.00</span>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:24px;">
+                  <button class="btn-cancelar" onclick="cancelarVenta()">
+                      <i class="bi bi-x-circle"></i> Cancelar
+                  </button>
+                  <button class="btn-guardar" onclick="guardarVenta()">
+                      <i class="bi bi-check-all"></i> Procesar y Guardar Venta
+                  </button>
+              </div>
+          </div>
+      </div>
+
+  </div>
+<script>
+	  let idUsuarioActual = null;
+      let carritoDetalle = [];
+      let stockDisponible = 0;
+      let todosLosProductos = [];
+  	  let productoSeleccionado = null;
+      
+      function renderizarTablaProductos(productos) {
+      	const tbody = document.getElementById('tbodyProductos');
+      	tbody.innerHTML = "";
+      	if (productos.length === 0) {
+          	tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">No se encontraron productos.</td></tr>`;
+         	return;
+      	}
+      	productos.forEach(p => {
+          	const fila = document.createElement('tr');
+          	fila.id = "fila_" + p[0];
+          	fila.innerHTML = `
+              	<td><strong>${p[0]}</strong></td>
+              	<td>${p[1]}</td>
+              	<td class="text-center">S/. ${parseFloat(p[2]).toFixed(2)}</td>
+              	<td class="text-center">${p[3]}</td>
+              	<td class="text-center">
+                  <button class="btn btn-primary btn-sm"
+                          onclick="seleccionarProducto('${p[0]}', '${p[1]}', ${p[2]}, ${p[3]})">
+                      Seleccionar
+                  </button>
+              	</td>`;
+          	tbody.appendChild(fila);
+      	});
+  	}
+  	
+  	
+  	function filtrarProductos() {
+      const texto = document.getElementById('buscadorProducto').value.toLowerCase();
+      const filtrados = todosLosProductos.filter(p =>
+          p[0].toLowerCase().includes(texto) || p[1].toLowerCase().includes(texto)
+      );
+      renderizarTablaProductos(filtrados);
+  	}
+  	
+  	
+  	function seleccionarProducto(idProducto, nomProducto, precio, stock) {
+      // Quitar resaltado anterior
+      if (productoSeleccionado) {
+          const filaAnterior = document.getElementById("fila_" + productoSeleccionado.idProducto);
+          if (filaAnterior) filaAnterior.classList.remove("table-warning");
+      }
+
+      // Guardar selección
+      productoSeleccionado = { idProducto, nomProducto, precioUnitario: precio, stock };
+      stockDisponible = stock;
+
+      // Resaltar fila seleccionada
+      const filaActual = document.getElementById("fila_" + idProducto);
+      if (filaActual) filaActual.classList.add("table-warning");
+
+      // Llenar campos
+      document.getElementById('productoSeleccionadoNombre').value = `${idProducto} - ${nomProducto}`;
+      document.getElementById('precioUnitario').value = parseFloat(precio).toFixed(2);
+      document.getElementById('cantidad').value = 1;
+  }
+  
+  
+      
+      function autorellenarPrecio() {
+          const select = document.getElementById('selectProducto');
+          const option = select.options[select.selectedIndex];
+          const precio = select.options[select.selectedIndex].getAttribute('data-precio') || "";
+          document.getElementById('precioUnitario').value = precio;
+          stockDisponible = parseInt(option.getAttribute('data-stock')) || 0;
+      }
+
+      function agregarProducto() {
+          if (!productoSeleccionado) {
+          alert("Seleccione un producto de la tabla.");
+          return;
+      		}
+
+      const cantidad = parseInt(document.getElementById('cantidad').value);
+      if (isNaN(cantidad) || cantidad <= 0) {
+          alert("Ingrese una cantidad válida.");
+          return;
+      }
+
+      if (cantidad > stockDisponible) {
+          alert("Stock insuficiente. Stock disponible: " + stockDisponible);
+          return;
+      }
+
+      const existe = carritoDetalle.find(item => item.idProducto === productoSeleccionado.idProducto);
+      if (existe) {
+          alert("Este producto ya está en el carrito.");
+          return;
+      }
+
+      carritoDetalle.push({
+          idProducto: productoSeleccionado.idProducto,
+          nomProducto: productoSeleccionado.nomProducto,
+          precioUnitario: productoSeleccionado.precioUnitario,
+          cantidad,
+          subtotal: cantidad * productoSeleccionado.precioUnitario
+      });
+
+      // Limpiar selección
+      productoSeleccionado = null;
+      stockDisponible = 0;
+      document.getElementById('productoSeleccionadoNombre').value = "";
+      document.getElementById('precioUnitario').value = "";
+      document.getElementById('cantidad').value = 1;
+      document.getElementById('buscadorProducto').value = "";
+      renderizarTablaProductos(todosLosProductos);
+
+      actualizarInterfaz();
+      }
+
+      function eliminarProducto(idProducto) {
+          carritoDetalle = carritoDetalle.filter(item => item.idProducto !== idProducto);
+          actualizarInterfaz();
+      }
+
+      function actualizarInterfaz() {
+          const tbody = document.getElementById('tbodyDetalle');
+          tbody.innerHTML = "";
+
+          if (carritoDetalle.length === 0) {
+              tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-3">No hay productos agregados a la venta.</td></tr>`;
+              document.getElementById('txtTotalGravado').innerText = "S/. 0.00";
+              document.getElementById('txtIgv').innerText = "S/. 0.00";
+              document.getElementById('txtTotalPagar').innerText = "S/. 0.00";
+              return;
+          }
+
+          let sumaSubtotales = 0;
+          carritoDetalle.forEach(item => {
+              sumaSubtotales += item.subtotal;
+              const fila = document.createElement('tr');
+              fila.innerHTML = `
+                  <td><strong>${item.idProducto}</strong></td>
+                  <td>${item.nomProducto}</td>
+                  <td class="text-center">S/. ${item.precioUnitario.toFixed(2)}</td>
+                  <td class="text-center"><span class="badge bg-secondary fs-6">${item.cantidad}</span></td>
+                  <td class="text-center font-monospace">S/. ${item.subtotal.toFixed(2)}</td>
+                  <td class="text-center">
+                      <button class="btn btn-outline-danger btn-sm" onclick="eliminarProducto('${item.idProducto}')">
+                          <i class="bi bi-trash"></i>
+                      </button>
+                  </td>`;
+              tbody.appendChild(fila);
+          });
+
+          const totalPagar = sumaSubtotales;
+          const totalGravado = totalPagar / 1.18;
+          const igv = totalPagar - totalGravado;
+          document.getElementById('txtTotalGravado').innerText = `S/. ${totalGravado.toFixed(2)}`;
+          document.getElementById('txtIgv').innerText = `S/. ${igv.toFixed(2)}`;
+          document.getElementById('txtTotalPagar').innerText = `S/. ${totalPagar.toFixed(2)}`;
+      }
+
+      function cancelarVenta() {
+          carritoDetalle = [];
+      	productoSeleccionado = null;
+      stockDisponible = 0;
+      document.getElementById('formVenta').reset();
+      document.getElementById('productoSeleccionadoNombre').value = "";
+      document.getElementById('precioUnitario').value = "";
+      document.getElementById('cantidad').value = 1;
+      document.getElementById('buscadorProducto').value = "";
+      renderizarTablaProductos(todosLosProductos);
+      actualizarInterfaz();
+      }
+
+      function guardarVenta() {
+          const form = document.getElementById('formVenta');
+          if (!form.checkValidity() || carritoDetalle.length === 0) {
+              alert("Complete todos los datos del cliente y agregue al menos un producto.");
+              form.classList.add('was-validated');
+              return;
+          }
+          if (!idUsuarioActual) {
+              alert("No se pudo obtener el usuario. Recarga la página.");
+              return;
+          }
+
+          const totalPagar = carritoDetalle.reduce((sum, item) => sum + item.subtotal, 0);
+          const totalGravado = totalPagar / 1.18;
+          const igv = totalPagar - totalGravado;
+
+          const payload = {
+              idUsuario: idUsuarioActual,
+              tipoComprobante: document.getElementById('tipoComprobante').value,
+              tipoDocumento: document.getElementById('tipoDocumento').value,
+              numDocumento: document.getElementById('numDocumento').value,
+              clienteNombre: document.getElementById('clienteNombre').value,
+              clienteDireccion: document.getElementById('clienteDireccion').value,
+              totalGravado: parseFloat(totalGravado.toFixed(2)),
+              igv: parseFloat(igv.toFixed(2)),
+              totalPagar: parseFloat(totalPagar.toFixed(2)),
+              metodoPago: document.getElementById('metodoPago').value,
+              detalleJson: JSON.stringify(carritoDetalle.map(item => ({
+                  idProducto: item.idProducto,
+                  cantidad: item.cantidad,
+                  precioUnitario: item.precioUnitario,
+                  subtotal: item.subtotal
+              })))
+          };
+
+          fetch("http://localhost:8080/api/venta/registrar", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+          })
+          .then(res => { 
+          	  if (res.ok) return res.text(); 
+          	  throw new Error("Error al registrar"); 
+          })
+          .then(idVenta => {
+          	  window.open("http://localhost:8080/api/venta/pdf/" + idVenta, "_blank");
+              alert("Venta registrada con éxito. ID: " + idVenta);
+              cancelarVenta();
+              //window.location.replace('venta_producto.html');
+              
+          })
+          .catch(err => {
+              console.error(err);
+              alert("Error al registrar la venta. Intente de nuevo.");
+          });
+          
+          
+          
+      }
+
+	function borrar_token(){
+      	localStorage.removeItem("TokenUsiario");
+      	window.location.replace("index.html");
+      }
+      
+</script>
+</body>
+</html>

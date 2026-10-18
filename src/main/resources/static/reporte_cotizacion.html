@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+  <html lang="es">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Keren Mass — Reporte de Cotizaciones</title>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+      <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { font-family: 'Segoe UI', sans-serif; background-color: #f7f7f7; min-height: 100vh; display: flex; }
+
+          .sidebar { width: 260px; min-height: 100vh; background-color: #1c1c1c; display: flex; flex-direction: column; position: fixed; top: 0;
+  left: 0; }
+          .sidebar-logo { padding: 30px 25px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+          .sidebar-logo img { width: 140px; filter: invert(1); }
+          .sidebar-role { color: rgba(255,255,255,0.35); font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; margin-top: 6px; }
+          .sidebar-nav { flex: 1; padding: 20px 0; }
+          .nav-section { color: rgba(255,255,255,0.25); font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; padding: 10px 25px
+  6px; }
+          .sidebar-nav a { display: flex; align-items: center; gap: 12px; padding: 11px 25px; color: rgba(255,255,255,0.6); text-decoration:
+  none; font-size: 0.9rem; transition: all 0.2s; border-left: 3px solid transparent; }
+          .sidebar-nav a:hover { color: #fff; background: rgba(255,255,255,0.06); border-left-color: #fff; }
+          .sidebar-nav a.active { color: #fff; background: rgba(255,255,255,0.08); border-left-color: #fff; }
+          .sidebar-nav a i { font-size: 1rem; width: 20px; }
+          .sidebar-footer { padding: 20px 25px; border-top: 1px solid rgba(255,255,255,0.08); }
+          .user-info { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+          .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center;
+  justify-content: center; color: #fff; font-size: 0.9rem; }
+          .user-name { color: #fff; font-size: 0.88rem; font-weight: 600; }
+          .user-role { color: rgba(255,255,255,0.35); font-size: 0.75rem; }
+          .btn-cerrar { width: 100%; padding: 9px; background: transparent; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color:
+  rgba(255,255,255,0.5); font-size: 0.85rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+  gap: 8px; }
+          .btn-cerrar:hover { background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.3); }
+
+          .main-content { margin-left: 260px; flex: 1; padding: 40px; }
+          .page-header { margin-bottom: 28px; }
+          .page-header h1 { font-size: 1.5rem; font-weight: 700; color: #1c1c1c; }
+          .page-header p { color: #999; font-size: 0.9rem; margin-top: 4px; }
+
+          .card-seccion { background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; overflow: hidden; }
+          .card-seccion-header { padding: 16px 24px; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; gap: 10px; }
+          .card-seccion-header h5 { font-size: 0.95rem; font-weight: 600; color: #1c1c1c; margin: 0; }
+          .card-seccion-header i { color: #1c1c1c; font-size: 1rem; }
+          .card-seccion-body { padding: 24px; }
+
+          .filtros { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+          .filtros input[type="text"], .filtros select { border: 1.5px solid #e0e0e0; border-radius: 6px; font-size: 0.88rem; padding: 9px 13px;
+  color: #1c1c1c; transition: border 0.2s; outline: none; }
+          .filtros input[type="text"] { flex: 1; min-width: 200px; }
+          .filtros input[type="date"] { border: 1.5px solid #e0e0e0; border-radius: 6px; font-size: 0.88rem; padding: 9px 13px; color: #1c1c1c;
+  outline: none; transition: border 0.2s; }
+          .filtros input:focus, .filtros select:focus { border-color: #1c1c1c; }
+          .filtros label { font-size: 0.78rem; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.8px; white-space:
+  nowrap; }
+
+          table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+          thead th { background: #1c1c1c; color: #fff; padding: 11px 14px; font-weight: 500; font-size: 0.78rem; letter-spacing: 0.5px;
+  text-align: left; white-space: nowrap; }
+          tbody tr { border-bottom: 1px solid #f0f0f0; transition: background 0.15s; }
+          tbody tr:hover { background: #fafafa; }
+          tbody td { padding: 11px 14px; color: #333; vertical-align: middle; }
+      </style>
+  </head>
+   <body>
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+      const tokenGuardado = localStorage.getItem("TokenUsiario");
+	if (!tokenGuardado) {
+        alert("No has iniciado sesión.");
+        window.location.replace("index.html");
+        return;
+    }
+    const usuario={
+    	token: parseInt(tokenGuardado)
+    };
+    
+    fetch("http://localhost:8080/api/usuario/valida", {
+    	method: "POST",
+    	headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify(usuario)
+	})
+    .then(response=>{
+		if(response.ok) {
+			return response.text();
+		}else{
+			throw new Error("Inicia secion primero");
+			window.location.replace("index.html");
+		}
+	})
+	.then(nombreRecibido => {
+		const nombre=nombreRecibido;
+		document.getElementById("mostrarNombre").textContent = nombre;       
+    })
+    .catch(error => {
+        console.error("Error en la petición:", error);
+        alert("No se pudo conectar con el servidor");
+        window.location.replace("index.html"); 
+    });
+    
+    fetch("http://localhost:8080/api/usuario/valida_token", {
+    	method: "POST",
+    	headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify(usuario)
+	})
+    .then(response=>{
+		if(response.ok) {
+			return response.text();
+		}else{
+			throw new Error("Inicia secion primero");
+			window.location.replace("index.html");
+		}
+	})
+	.then(token => {
+		token_obtenido = parseInt(token);
+		token_html=parseInt(tokenGuardado);
+		if(token_obtenido==token_html){
+			
+		}else{
+			alert("No has iniciado sesión.");
+        	window.location.replace("index.html");
+        	return;
+		}
+    })
+    .catch(error => {
+        console.error("Error en la petición:", error);
+        alert("No se pudo conectar con el servidor");
+        window.location.replace("index.html"); 
+    });
+    
+    fetch("http://localhost:8080/api/usuario/valida_rol", {
+    	method: "POST",
+    	headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify(usuario)
+	})
+    .then(response=>{
+		if(response.ok) {
+			return response.text();
+		}else{
+			throw new Error("Inicia secion primero");
+			window.location.replace("index.html");
+		}
+	})
+	.then(rolRecibido => {
+		
+		if (rolRecibido === "vendedor") {      
+			window.location.href = "menu_vendedor.html";      
+        } else if (rolRecibido === "logistica") {
+        	window.location.href = "menu_logistica.html";
+        } else if(rolRecibido === "administrador"){
+            
+        }else{
+        	window.location.href = "index.html"
+        }
+    })
+    .catch(error => {
+        console.error("Error en la petición:", error);
+        alert("No se pudo conectar con el servidor");
+        window.location.replace("index.html"); 
+    });
+
+      cargarCotizaciones();
+  });
+  </script>
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+      <div class="sidebar-logo">
+          <img src="img/logo_ec3.png" alt="Keren Mass">
+          <div class="sidebar-role">Administrador</div>
+      </div>
+      <nav class="sidebar-nav">
+          <div class="nav-section">Reportes</div>
+          <a href="#" onclick="window.location.replace('administrador.html')">
+              <i class="bi bi-house"></i> Inicio
+          </a>
+          <a href="#" onclick="window.location.replace('reporte_ventas.html')">
+              <i class="bi bi-receipt"></i> Ventas
+          </a>
+          <a href="#" onclick="window.location.replace('reporte_compras.html')">
+              <i class="bi bi-cart3"></i> Compras
+          </a>
+          <a href="#" onclick="window.location.replace('reporte_cotizacion.html')" class="active">
+              <i class="bi bi-file-earmark-text"></i> Cotizaciones
+          </a>
+          <a href="#" onclick="window.location.replace('reporte_produccion.html')">
+              <i class="bi bi-gear"></i> Producción
+          </a>
+          <div class="nav-section" style="margin-top:10px;">Gestión</div>
+          <a href="#" onclick="window.location.replace('gestion_usuarios.html')">
+              <i class="bi bi-people"></i> Usuarios
+          </a>
+      </nav>
+      <div class="sidebar-footer">
+          <div class="user-info">
+              <div class="user-avatar"><i class="bi bi-person"></i></div>
+              <div>
+                  <div class="user-name" id="mostrarNombre">—</div>
+                  <div class="user-role">Administrador</div>
+              </div>
+          </div>
+          <button class="btn-cerrar" onclick="borrar_token()">
+              <i class="bi bi-box-arrow-left"></i> Cerrar sesión
+          </button>
+      </div>
+  </div>
+
+  <!-- CONTENIDO -->
+  <div class="main-content">
+      <div class="page-header">
+          <h1>Reporte de Cotizaciones</h1>
+          <p>Estado de cotizaciones enviadas a proveedores</p>
+      </div>
+
+      <div class="card-seccion">
+          <div class="card-seccion-header">
+              <i class="bi bi-file-earmark-text"></i>
+              <h5>Cotizaciones Registradas</h5>
+          </div>
+          <div class="card-seccion-body">
+
+              <div class="filtros">
+                  <input type="text" id="buscador"
+                         placeholder="Buscar por ID, proveedor, logístico o material..."
+                         oninput="filtrarTabla()">
+                  <select id="filtroProveedor" onchange="filtrarTabla()">
+                      <option value="">Todos los proveedores</option>
+                  </select>
+                  <select id="filtroEstado" onchange="filtrarTabla()">
+                      <option value="">Todos los estados</option>
+                      <option value="ENVIADO">Enviado</option>
+                      <option value="ACEPTADO">Aceptado</option>
+                  </select>
+                  <label>Desde</label>
+                  <input type="date" id="fechaDesde" onchange="filtrarTabla()">
+                  <label>Hasta</label>
+                  <input type="date" id="fechaHasta" onchange="filtrarTabla()">
+              </div>
+
+              <div style="overflow-x: auto;">
+                  <table>
+                      <thead>
+                          <tr>
+                              <th>ID Cotización</th>
+                              <th>Proveedor</th>
+                              <th>Fecha Solicitud</th>
+                              <th>Costo Total (S/.)</th>
+                              <th>Estado</th>
+                              <th>Logístico</th>
+                              <th>Materiales</th>
+                          </tr>
+                      </thead>
+                      <tbody id="tbodyCotizaciones">
+                          <tr><td colspan="7" style="text-align:center;color:#999;padding:20px;">Cargando...</td></tr>
+                      </tbody>
+                  </table>
+              </div>
+
+          </div>
+      </div>
+  </div>
+<script>
+let todasLasCotizaciones = [];
+
+      function cargarCotizaciones() {
+          fetch("http://localhost:8080/api/cotizacion/reporte")
+          .then(res => res.json())
+          .then(cotizaciones => {
+              todasLasCotizaciones = cotizaciones;
+              cargarProveedoresCombo(cotizaciones);
+              renderizarTabla(cotizaciones);
+          })
+          .catch(() => alert("Error al cargar las cotizaciones."));
+      }
+
+      function cargarProveedoresCombo(cotizaciones) {
+          const select = document.getElementById('filtroProveedor');
+          const proveedores = [...new Set(cotizaciones.map(c => c[1]))].sort();
+          proveedores.forEach(p => {
+              const opt = document.createElement('option');
+              opt.value = p;
+              opt.textContent = p;
+              select.appendChild(opt);
+          });
+      }
+
+      function renderizarTabla(cotizaciones) {
+          const tbody = document.getElementById('tbodyCotizaciones');
+          tbody.innerHTML = "";
+
+          if (cotizaciones.length === 0) {
+              tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No se encontraron cotizaciones.</td></tr>`;
+              return;
+          }
+
+          cotizaciones.forEach(c => {
+              const estadoBadge = c[4] === 'ACEPTADO'
+                  ? `<span class="badge bg-success">${c[4]}</span>`
+                  : `<span class="badge bg-warning text-dark">${c[4]}</span>`;
+
+              const fila = document.createElement('tr');
+              fila.innerHTML = `
+                  <td><strong>${c[0]}</strong></td>
+                  <td>${c[1]}</td>
+                  <td>${c[2]}</td>
+                  <td class="text-center font-monospace">S/. ${parseFloat(c[3]).toFixed(2)}</td>
+                  <td class="text-center">${estadoBadge}</td>
+                  <td>${c[5]}</td>
+                  <td><small>${c[6]}</small></td>`;
+              tbody.appendChild(fila);
+          });
+      }
+
+      function filtrarTabla() {
+          const texto      = document.getElementById('buscador').value.toLowerCase();
+          const proveedor  = document.getElementById('filtroProveedor').value;
+          const estado     = document.getElementById('filtroEstado').value;
+          const fechaDesde = document.getElementById('fechaDesde').value;
+          const fechaHasta = document.getElementById('fechaHasta').value;
+
+          const filtradas = todasLasCotizaciones.filter(c => {
+              const fecha = c[2] + "";
+              return (
+                  (proveedor  === "" || c[1] === proveedor) &&
+                  (estado     === "" || c[4] === estado) &&
+                  (fechaDesde === "" || fecha >= fechaDesde) &&
+                  (fechaHasta === "" || fecha <= fechaHasta) &&
+                  (
+                      (c[0] + "").toLowerCase().includes(texto) ||
+                      (c[1] + "").toLowerCase().includes(texto) ||
+                      (c[5] + "").toLowerCase().includes(texto) ||
+                      (c[6] + "").toLowerCase().includes(texto)     
+                  )
+              );
+          });
+          renderizarTabla(filtradas);
+      }
+      function borrar_token() {
+          localStorage.removeItem("TokenUsiario");
+          window.location.replace("index.html");
+      }
+</script>
+</nav>
+</body>
+</html>

@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+  <html lang="es">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Keren Mass — Productos</title>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+      <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { font-family: 'Segoe UI', sans-serif; background-color: #f7f7f7; min-height: 100vh; display: flex; }
+
+          .sidebar { width: 260px; min-height: 100vh; background-color: #1c1c1c; display: flex; flex-direction: column; position: fixed; top: 0;
+  left: 0; }
+          .sidebar-logo { padding: 30px 25px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+          .sidebar-logo img { width: 140px; filter: invert(1); }
+          .sidebar-role { color: rgba(255,255,255,0.35); font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; margin-top: 6px; }
+          .sidebar-nav { flex: 1; padding: 20px 0; }
+          .nav-section { color: rgba(255,255,255,0.25); font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; padding: 10px 25px
+  6px; }
+          .sidebar-nav a { display: flex; align-items: center; gap: 12px; padding: 11px 25px; color: rgba(255,255,255,0.6); text-decoration:
+  none; font-size: 0.9rem; transition: all 0.2s; border-left: 3px solid transparent; }
+          .sidebar-nav a:hover { color: #fff; background: rgba(255,255,255,0.06); border-left-color: #fff; }
+          .sidebar-nav a.active { color: #fff; background: rgba(255,255,255,0.08); border-left-color: #fff; }
+          .sidebar-nav a i { font-size: 1rem; width: 20px; }
+          .sidebar-footer { padding: 20px 25px; border-top: 1px solid rgba(255,255,255,0.08); }
+          .user-info { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+          .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center;
+  justify-content: center; color: #fff; font-size: 0.9rem; }
+          .user-name { color: #fff; font-size: 0.88rem; font-weight: 600; }
+          .user-role { color: rgba(255,255,255,0.35); font-size: 0.75rem; }
+          .btn-cerrar { width: 100%; padding: 9px; background: transparent; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color:
+  rgba(255,255,255,0.5); font-size: 0.85rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+  gap: 8px; }
+          .btn-cerrar:hover { background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.3); }
+
+          .main-content { margin-left: 260px; flex: 1; padding: 40px; }
+          .page-header { margin-bottom: 28px; }
+          .page-header h1 { font-size: 1.5rem; font-weight: 700; color: #1c1c1c; }
+          .page-header p { color: #999; font-size: 0.9rem; margin-top: 4px; }
+
+          .card-seccion { background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; overflow: hidden; margin-bottom: 24px; }
+          .card-seccion-header { padding: 14px 24px; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; gap: 10px; }
+          .card-seccion-header h5 { font-size: 0.92rem; font-weight: 600; color: #1c1c1c; margin: 0; text-transform: uppercase; letter-spacing:
+  0.5px; }
+          .card-seccion-header i { color: #1c1c1c; font-size: 1rem; }
+          .card-seccion-body { padding: 24px; }
+
+          .form-label { font-size: 0.78rem; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 5px;
+  display: block; }
+          .form-control, .form-select { border: 1.5px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem; padding: 10px 13px; color: #1c1c1c;
+  transition: border 0.2s; width: 100%; margin-bottom: 16px; }
+          .form-control:focus, .form-select:focus { border-color: #1c1c1c; outline: none; box-shadow: none; }
+
+          .btn-primary-dark { padding: 10px 18px; background: #1c1c1c; color: #fff; border: none; border-radius: 6px; font-size: 0.88rem;
+  font-weight: 600; cursor: pointer; transition: background 0.2s; }
+          .btn-primary-dark:hover { background: #333; }
+          .btn-full { width: 100%; padding: 11px; }
+          .btn-outline-red { background: transparent; border: none; color: #c0392b; cursor: pointer; font-size: 0.85rem; padding: 3px 8px; }
+          .btn-outline-red:hover { color: #922b21; }
+
+          .filtros { display: flex; gap: 12px; margin-bottom: 18px; }
+          .filtros input { flex: 1; border: 1.5px solid #e0e0e0; border-radius: 6px; font-size: 0.88rem; padding: 9px 13px; color: #1c1c1c;
+  outline: none; transition: border 0.2s; }
+          .filtros input:focus { border-color: #1c1c1c; }
+          .btn-actualizar { padding: 9px 18px; background: transparent; border: 1.5px solid #e0e0e0; border-radius: 6px; color: #555; font-size:
+  0.85rem; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+          .btn-actualizar:hover { border-color: #1c1c1c; color: #1c1c1c; }
+
+          table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+          thead th { background: #1c1c1c; color: #fff; padding: 11px 14px; font-weight: 500; font-size: 0.78rem; letter-spacing: 0.5px;
+  text-align: left; }
+          tbody tr { border-bottom: 1px solid #f0f0f0; transition: background 0.15s; }
+          tbody tr:hover { background: #fafafa; }
+          tbody td { padding: 11px 14px; color: #333; vertical-align: middle; }
+
+          /* Tabla materiales receta */
+          .tabla-receta { border: 1px solid #e8e8e8; border-radius: 6px; overflow: hidden; margin-top: 8px; }
+          .tabla-receta table { margin: 0; }
+          .tabla-receta thead th { background: #f0f0f0; color: #555; font-size: 0.78rem; }
+          .tabla-receta tbody td { padding: 9px 14px; }
+      </style>
+  </head>
+<body>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+	const tokenGuardado = localStorage.getItem("TokenUsiario");
+	
+	if (!tokenGuardado) {
+        alert("No has iniciado sesión.");
+        window.location.replace("index.html");
+        return;
+    }
+    const usuario={
+    	token: parseInt(tokenGuardado)
+    };
+    
+    fetch("http://localhost:8080/api/usuario/valida", {
+    	method: "POST",
+    	headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify(usuario)
+	})
+    .then(response=>{
+		if(response.ok) {
+			return response.text();
+		}else{
+			throw new Error("Inicia secion primero");
+			window.location.replace("index.html");
+		}
+	})
+	.then(rolRecibido => {
+		const nombre=rolRecibido;
+		document.getElementById("mostrarNombre").textContent = nombre;
+        
+    })
+    .catch(error => {
+        console.error("Error en la petición:", error);
+        alert("No se pudo conectar con el servidor");
+        window.location.replace("index.html"); 
+    });
+    
+    fetch("http://localhost:8080/api/usuario/valida_token", {
+    	method: "POST",
+    	headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify(usuario)
+	})
+    .then(response=>{
+		if(response.ok) {
+			return response.text();
+		}else{
+			throw new Error("Inicia secion primero");
+			window.location.replace("index.html");
+		}
+	})
+	.then(token => {
+		token_obtenido = parseInt(token);
+		token_html=parseInt(tokenGuardado);
+		if(token_obtenido==token_html){
+			
+		}else{
+			alert("No has iniciado sesión.");
+        	window.location.replace("index.html");
+        	return;
+		}
+    })
+    .catch(error => {
+        console.error("Error en la petición:", error);
+        alert("No se pudo conectar con el servidor");
+        window.location.replace("index.html"); 
+    });
+    
+    
+    fetch("http://localhost:8080/api/usuario/valida_rol", {
+    	method: "POST",
+    	headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify(usuario)
+	})
+    .then(response=>{
+		if(response.ok) {
+			return response.text();
+		}else{
+			throw new Error("Inicia secion primero");
+			window.location.replace("index.html");
+		}
+	})
+	.then(rolRecibido => {
+		
+		if (rolRecibido === "vendedor") {      
+			window.location.href = "menu_vendedor.html";      
+        } else if (rolRecibido === "logistica") {
+        } else if(rolRecibido === "administrador"){
+            window.location.href = "administrador.html";
+        }else{
+        	window.location.href = "index.html"
+        }
+    })
+    .catch(error => {
+        console.error("Error en la petición:", error);
+        alert("No se pudo conectar con el servidor");
+        window.location.replace("index.html"); 
+    });
+    cargarProductos()
+});
+
+</script>
+   <!-- SIDEBAR -->
+  <div class="sidebar">
+      <div class="sidebar-logo">
+          <img src="img/logo_ec3.png" alt="Keren Mass">
+          <div class="sidebar-role">Logística</div>
+      </div>
+      <nav class="sidebar-nav">
+          <div class="nav-section">Módulos</div>
+          <a href="#" onclick="window.location.replace('menu_logistica.html')">
+              <i class="bi bi-house"></i> Inicio
+          </a>
+          <a href="#" onclick="window.location.replace('materia_prima.html')">
+              <i class="bi bi-boxes"></i> Materia Prima
+          </a>
+          <a href="#" onclick="window.location.replace('producto.html')" class="active">
+              <i class="bi bi-box-seam"></i> Producto
+          </a>
+          <a href="#" onclick="window.location.replace('produccion.html')">
+              <i class="bi bi-gear"></i> Producción
+          </a>
+          <a href="#" onclick="window.location.replace('cotizacion.html')">
+              <i class="bi bi-file-earmark-text"></i> Cotización
+          </a>
+          <a href="#" onclick="window.location.replace('proveedores.html')">
+              <i class="bi bi-truck"></i> Proveedores
+          </a>
+          <a href="#" onclick="window.location.replace('compra.html')">
+              <i class="bi bi-cart3"></i> Compra
+          </a>
+      </nav>
+      <div class="sidebar-footer">
+          <div class="user-info">
+              <div class="user-avatar"><i class="bi bi-person"></i></div>
+              <div>
+                  <div class="user-name" id="mostrarNombre">—</div>
+                  <div class="user-role">Logística</div>
+              </div>
+          </div>
+          <button class="btn-cerrar" onclick="borrar_token()">
+              <i class="bi bi-box-arrow-left"></i> Cerrar sesión
+          </button>
+      </div>
+  </div>
+
+  <!-- CONTENIDO -->
+  <div class="main-content">
+      <div class="page-header">
+          <h1>Productos</h1>
+          <p>Registra productos con su receta de materias primas</p>
+      </div>
+
+      <!-- Formulario registro producto -->
+      <div class="card-seccion">
+          <div class="card-seccion-header">
+              <i class="bi bi-plus-circle"></i>
+              <h5>Registrar Nuevo Producto</h5>
+          </div>
+          <div class="card-seccion-body">
+              <div class="row g-4">
+
+                  <!-- Datos del producto -->
+                  <div class="col-md-4">
+                      <label class="form-label">Nombre del Producto</label>
+                      <input type="text" id="txtNomProducto" class="form-control" placeholder="Ej: Pantalón Jean">
+
+                      <label class="form-label">Precio de Venta (S/.)</label>
+                      <input type="number" id="txtPrecio" class="form-control" step="0.01" placeholder="0.00">
+
+                      <label class="form-label">Stock Mínimo</label>
+                      <input type="number" id="txtStockMin" class="form-control" placeholder="10">
+                  </div>
+
+                  <!-- Agregar materiales -->
+                  <div class="col-md-8">
+                      <label class="form-label">Seleccionar Material</label>
+                      <div style="display:flex; gap:10px; margin-bottom:16px;">
+                          <select id="selectMaterial" class="form-select" style="margin-bottom:0;">
+                              <option value="">-- Seleccione un material --</option>
+                          </select>
+                          <input type="number" id="txtCantidadMaterial" class="form-control"
+                                 step="0.01" placeholder="Cantidad" style="width:130px; margin-bottom:0;">
+                          <button class="btn-primary-dark" onclick="agregarMaterialALaLista()" style="white-space:nowrap;">
+                              <i class="bi bi-plus"></i> Agregar
+                          </button>
+                      </div>
+
+                      <div class="tabla-receta">
+                          <table>
+                              <thead>
+                                  <tr>
+                                      <th>Código</th>
+                                      <th>Material</th>
+                                      <th>Cantidad</th>
+                                      <th>Acción</th>
+                                  </tr>
+                              </thead>
+                              <tbody id="tablaMaterialesCuerpo">
+                                  <tr>
+                                      <td colspan="4" style="text-align:center;color:#999;padding:16px;">Ningún material agregado aún.</td>
+                                  </tr>
+                              </tbody>
+                          </table>
+                      </div>
+                  </div>
+              </div>
+
+              <div style="display:flex; justify-content:flex-end; margin-top:24px;">
+                  <button class="btn-primary-dark" onclick="registrarProductoYReceta()" style="padding:11px 28px;">
+                      <i class=""></i> Guardar Producto y Receta
+                  </button>
+              </div>
+          </div>
+      </div>
+
+      <!-- Tabla productos registrados -->
+      <div class="card-seccion">
+          <div class="card-seccion-header">
+              <i class="bi bi-table"></i>
+              <h5>Productos Registrados</h5>
+          </div>
+          <div class="card-seccion-body">
+              <div class="filtros">
+                  <input type="text" id="buscadorProducto"
+                         placeholder="Buscar por código o nombre..."
+                         oninput="filtrarTablaProductos()">
+                  <button class="btn-actualizar" onclick="cargarProductos()">
+                      <i class="bi bi-arrow-clockwise"></i> Actualizar
+                  </button>
+              </div>
+              <div style="overflow-x:auto;">
+                  <table>
+                      <thead>
+                          <tr>
+                              <th>Código</th>
+                              <th>Nombre</th>
+                              <th>Stock Mínimo</th>
+                              <th>Costo Producción (S/.)</th>
+                          </tr>
+                      </thead>
+                      <tbody id="tbodyProductos">
+                          <tr><td colspan="4" style="text-align:center;color:#999;padding:20px;">Cargando...</td></tr>
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+      </div>
+
+  </div>
+    <script>
+    	
+    	fetch("http://localhost:8080/api/usuario/materias-primas")
+          .then(res => res.json())
+          .then(materiales => {
+              const select = document.getElementById("selectMaterial");
+              materiales.forEach(m => {
+                  const opt = document.createElement("option");
+                  opt.value = m.idMateriaPrima;
+                  opt.text = `${m.nombreMp} (${m.unidadMp})`;
+                  opt.dataset.stock = m.stockMp;
+                  select.appendChild(opt);
+              });
+          });
+          
+        
+        let listaMateriales = [];
+		
+		 function borrar_token(){
+      		localStorage.removeItem("TokenUsiario");
+      		window.location.replace("index.html");
+      	}
+
+        function agregarMaterialALaLista() {
+        	
+            const select = document.getElementById("selectMaterial");
+            const inputCantidad = document.getElementById("txtCantidadMaterial");
+
+            const idMateriaPrima = select.value;
+            const nombreMaterial = select.options[select.selectedIndex].text;
+            const cantidad = parseFloat(inputCantidad.value);
+
+
+            if (!idMateriaPrima) {
+                alert("Por favor, seleccione una materia prima.");
+                return;
+            }
+            const stockDisponible = parseFloat(select.options[select.selectedIndex].dataset.stock);
+            if (isNaN(cantidad) || cantidad <= 0) {
+                alert("Por favor, ingrese una cantidad válida mayor a 0.");
+                return;
+            }
+            
+            
+
+
+            const existe = listaMateriales.some(item => item.idMateriaPrima === idMateriaPrima);
+            if (existe) {
+                alert("Este material ya está agregado en la receta. Si deseas cambiar la cantidad, elimínalo y vuelve a agregarlo.");
+                return;
+            }
+
+
+            listaMateriales.push({
+                idMateriaPrima: idMateriaPrima,
+                nombreMaterial: nombreMaterial,
+                cantidad: cantidad
+            });
+
+            inputCantidad.value = "";
+            select.value = "";
+            actualizarTablaVisual(nombreMaterial);
+        }
+
+        function actualizarTablaVisual() {
+            const cuerpoTabla = document.getElementById("tablaMaterialesCuerpo");
+            cuerpoTabla.innerHTML = ""; // Limpiamos la tabla
+
+            if (listaMateriales.length === 0) {
+                cuerpoTabla.innerHTML = `<tr><td colspan="4" style="text-align: center; color: gray;">Ningún material agregado aún.</td></tr>`;
+                return;
+            }
+
+            // Recorremos el array global para pintar fila por fila
+            listaMateriales.forEach((item, index) => {
+                // Truco para recuperar el texto del select basándonos en su ID guardado
+                const fila = document.createElement("tr");
+                fila.innerHTML = `
+                    <td><b>${item.idMateriaPrima}</b></td>
+                    <td>${item.nombreMaterial}</td>
+                    <td>${item.cantidad}</td>
+                    <td>
+                        <button type="button" style="color: red;" onclick="eliminarMaterial(${index})">Quitar</button>
+                    </td>
+                `;
+                cuerpoTabla.appendChild(fila);
+            });
+        }
+
+
+        function eliminarMaterial(index) {
+            listaMateriales.splice(index, 1); // Quita el elemento del array
+            actualizarTablaVisual();          // Redibuja la tabla
+        }
+
+
+        function registrarProductoYReceta() {
+            if (listaMateriales.length === 0) {
+                alert("No puedes registrar un producto sin agregar al menos un material a su receta.");
+                return;
+            }
+            
+            const nomProducto = document.getElementById("txtNomProducto").value;
+            
+            if (!nomProducto) {
+                alert("El nombre del producto es obligatorio.");
+                return;
+            }
+
+
+            const dataEnvio = {
+                nomProducto: document.getElementById("txtNomProducto").value,
+                precioPrd: parseFloat(document.getElementById("txtPrecio").value) || 0.0,
+                stockMinimo: parseInt(document.getElementById("txtStockMin").value) || 0,
+                
+                materialesJson: JSON.stringify(listaMateriales) 
+            };
+            
+            
+			if (isNaN(dataEnvio.precioPrd) || dataEnvio.precioPrd <= 0) { alert("El precio de venta es obligatorio."); return; }
+  			if (isNaN(dataEnvio.stockMinimo) || dataEnvio.stockMinimo <= 0) { alert("El stock mínimo esobligatorio."); return; }
+            console.log("Enviando toda la estructura unificada:", dataEnvio);
+
+            fetch("http://localhost:8080/api/producto/registrar-completo", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(dataEnvio)
+            })
+            .then(res => {
+                if(res.ok) {
+                    alert("¡Producto y Receta creados exitosamente en la Base de Datos!");
+                    document.getElementById("txtNomProducto").value = "";
+                    document.getElementById("txtPrecio").value = "";
+                    document.getElementById("txtStockMin").value = "";
+                    listaMateriales = [];
+                    actualizarTablaVisual();
+                } else {
+                    alert("Error en el servidor al intentar registrar.");
+                }
+            })
+            .catch(err => {
+                console.error("Error:", err);
+                alert("No se pudo conectar con el servidor.");
+            });
+        }
+        
+        let todosLosProductos = [];
+
+  function cargarProductos() {
+      fetch("http://localhost:8080/api/producto/listar")
+      .then(res => res.json())
+      .then(productos => {
+          todosLosProductos = productos;
+          renderizarTablaProductos(productos);
+      })
+      .catch(() => alert("Error al cargar los productos."));
+  }
+
+  function renderizarTablaProductos(productos) {
+      const tbody = document.getElementById('tbodyProductos');
+      tbody.innerHTML = "";
+
+      if (productos.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No hay productos registrados.</td></tr>`;
+          return;
+      }
+
+      productos.forEach(p => {
+          // p[0]=id_producto, p[1]=nom_producto, p[2]=stock_minimo, p[3]=costo_produccion
+          // stock_prd no viene en este endpoint — solo mostramos lo disponible
+          const fila = document.createElement('tr');
+          fila.innerHTML = `
+      <td><strong>${p[0]}</strong></td>
+      <td>${p[1]}</td>
+      <td class="text-center">${p[2]}</td>
+      <td class="text-center font-monospace">S/. ${parseFloat(p[3]).toFixed(2)}</td>`;
+          tbody.appendChild(fila);
+      });
+  }
+
+  function filtrarTablaProductos() {
+      const texto = document.getElementById('buscadorProducto').value.toLowerCase();
+      const filtrados = todosLosProductos.filter(p =>
+          (p[0] + "").toLowerCase().includes(texto) ||
+          (p[1] + "").toLowerCase().includes(texto)
+      );
+      renderizarTablaProductos(filtrados);
+  }
+    </script>
+</body>
+</html>
