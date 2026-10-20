@@ -49,3 +49,4 @@ src/main/resources/application-local.properties
 *.sqlite
 *.sqlite3
 *.log
+data/

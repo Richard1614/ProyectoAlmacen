@@ -1,39 +1,79 @@
 # Austral Pilot
 
-Aplicación Java/Spring Boot para gestión de producción, compras y ventas.
+Sistema web de almacén y compras para Transportes Austral Group. El backend
+implementa el flujo definido en el documento del proyecto: productos e
+inventario por almacén, órdenes de compra con autorización gerencial,
+recepciones e incidencias, requerimientos de Taller, salidas con evidencia,
+anulaciones, reaperturas, auditoría y reportes.
 
-## Requisitos
+## Arquitectura
 
-- Java 17
-- MySQL
+- Java 17 y Spring Boot 4
+- Spring Security con autenticación HTTP Basic y BCrypt
+- Spring Data JPA para usuarios, roles y permisos
+- JDBC transaccional para procedimientos de inventario
+- MySQL 8
+- Maven Wrapper
 
-## Configuración local
+El esquema físico contiene 22 tablas, dos vistas, cinco procedimientos
+almacenados y cinco triggers. Está en `database/01_schema.sql`.
+La correspondencia completa con RF-01 a RF-20 está en
+`docs/trazabilidad-requisitos.md`.
 
-La aplicación lee su configuración desde variables de entorno. Consulte
-`.env.example` para conocer los nombres disponibles. No copie credenciales
-reales dentro de archivos versionados.
+## Preparar MySQL
 
-En PowerShell puede definirlas para la sesión actual:
+Ejecute `database/01_schema.sql` completo desde MySQL Workbench. El script crea
+la base `austral_almacen`, los objetos de datos, roles, permisos y el almacén
+principal. No crea contraseñas públicas.
+
+## Configurar el entorno
+
+Use `.env.example` únicamente como referencia. En PowerShell:
 
 ```powershell
-$env:DB_USERNAME = "usuario_local"
-$env:DB_PASSWORD = "su_contrasena_local"
-$env:MAIL_USERNAME = "cuenta@gmail.com"
-$env:MAIL_PASSWORD = "contrasena_de_aplicacion"
+$env:DB_URL = "jdbc:mysql://localhost:3306/austral_almacen?useSSL=false&serverTimezone=America/Lima"
+$env:DB_USERNAME = "root"
+$env:DB_PASSWORD = "SU_CLAVE_MYSQL"
+$env:ADMIN_EMAIL = "admin@localhost.test"
+$env:ADMIN_PASSWORD = "UNA_CLAVE_SEGURA_DE_12_O_MAS"
+$env:ADMIN_NAME = "Administrador"
 .\mvnw.cmd spring-boot:run
 ```
 
-Las variables de correo son necesarias solo para enviar cotizaciones por Gmail.
+El primer inicio crea el administrador con hash BCrypt. Después retire
+`ADMIN_PASSWORD` de la sesión o del entorno; no la guarde en Git.
+
+## API principal
+
+Todas las rutas usan el prefijo `/api/v1` y validan permisos en el servidor.
+
+| Proceso | Rutas principales |
+|---|---|
+| Sesión | `GET /sesion` |
+| Productos | `GET/POST /productos` |
+| Inventario | `GET /inventario` |
+| Compras | `POST /compras/ordenes`, `POST /compras/ordenes/{id}/decision` |
+| Reapertura | `POST /compras/ordenes/{id}/reabrir` |
+| Recepción | `POST /recepciones`, `POST /recepciones/{id}/confirmar` |
+| Taller | `POST /taller/requerimientos` |
+| Salidas | `POST /salidas`, evidencia y confirmación |
+| Anulaciones | `POST /movimientos/{id}/anular` |
+| Reportes | `GET /reportes/stock-bajo`, `GET /reportes/trazabilidad` |
+
+Las evidencias admiten JPG, PNG o PDF, con un máximo de 5 MB. Se guardan fuera
+de los recursos públicos en `data/evidencias`, carpeta ignorada por Git.
+
+## Ejecutar pruebas
+
+```powershell
+.\mvnw.cmd test
+```
+
+La prueba automatizada valida que el esquema mantenga al menos 12 tablas y que
+incluya procedimientos, triggers, trazabilidad y hash de contraseñas.
 
 ## Colaboración
 
-1. Cree una rama para cada cambio.
-2. No confirme archivos `.env`, credenciales ni datos personales.
-3. Abra un pull request para revisión antes de integrar cambios.
-4. Ejecute `.\mvnw.cmd test` antes de enviar el pull request.
-
-## Advertencia de despliegue
-
-Publicar el código fuente en GitHub no ejecuta la aplicación ni genera cargos.
-Sin embargo, la autenticación actual es solo apta para desarrollo local. Lea
-`SECURITY.md` antes de desplegarla en un servidor accesible desde Internet.
+Antes de trabajar ejecute `git pull`. Cree una rama por cambio y no confirme
+archivos `.env`, contraseñas, evidencias, datos personales, `target` ni cachés.
+Use pull requests para revisar los cambios antes de incorporarlos a `main`.
