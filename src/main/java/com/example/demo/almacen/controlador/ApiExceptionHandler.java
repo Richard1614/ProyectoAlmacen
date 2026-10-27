@@ -26,6 +26,10 @@ public class ApiExceptionHandler {
         Throwable causa=ex;
         while(causa.getCause()!=null) causa=causa.getCause();
         String mensaje=causa.getMessage();
+        if(ex instanceof DataAccessException) {
+            if(causa instanceof java.sql.SQLException sql && "45000".equals(sql.getSQLState())) return mensaje;
+            return "No se pudo completar la operación. Revise los datos y sus relaciones.";
+        }
         return mensaje==null || mensaje.isBlank() ? "No se pudo completar la operacion" : mensaje;
     }
 }

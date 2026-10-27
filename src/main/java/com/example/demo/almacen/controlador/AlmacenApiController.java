@@ -43,6 +43,14 @@ public class AlmacenApiController {
     @PreAuthorize("hasAuthority('USUARIOS_ADMINISTRAR')")
     public void estadoUsuario(@PathVariable long id,@RequestBody EstadoRequest r,Principal p) { service.cambiarEstadoUsuario(id,r.activo(),userId(p)); }
 
+    @PatchMapping("/usuarios/{id}/rol")
+    @PreAuthorize("hasAuthority('USUARIOS_ADMINISTRAR')")
+    public void rolUsuario(@PathVariable long id,@Valid @RequestBody RolUsuarioRequest r,Principal p) { service.cambiarRolUsuario(id,r.rol(),userId(p)); }
+
+    @PutMapping("/roles/{id}/permisos")
+    @PreAuthorize("hasAuthority('USUARIOS_ADMINISTRAR')")
+    public void permisosRol(@PathVariable long id,@Valid @RequestBody PermisosRolRequest r,Principal p) { service.actualizarPermisosRol(id,r.permisos(),userId(p)); }
+
     @GetMapping("/proveedores")
     @PreAuthorize("hasAnyAuthority('OC_REGISTRAR','RECEPCION_REGISTRAR')")
     public List<Map<String,Object>> proveedores() { return service.proveedores(); }
@@ -64,7 +72,7 @@ public class AlmacenApiController {
     public List<Map<String,Object>> almacenes() { return service.almacenes(); }
 
     @GetMapping("/productos")
-    @PreAuthorize("hasAuthority('INVENTARIO_CONSULTAR')")
+    @PreAuthorize("hasAnyAuthority('INVENTARIO_CONSULTAR','REQUERIMIENTO_REGISTRAR','OC_REGISTRAR')")
     public List<Map<String,Object>> productos() { return service.productos(); }
 
     @PostMapping("/productos") @ResponseStatus(HttpStatus.CREATED)
@@ -98,7 +106,7 @@ public class AlmacenApiController {
     }
 
     @GetMapping("/compras/ordenes")
-    @PreAuthorize("hasAnyAuthority('OC_REGISTRAR','OC_AUTORIZAR','OC_REABRIR')")
+    @PreAuthorize("hasAnyAuthority('OC_REGISTRAR','OC_AUTORIZAR','OC_REABRIR','RECEPCION_REGISTRAR')")
     public List<Map<String,Object>> ordenesCompra() { return service.ordenesCompra(); }
 
     @GetMapping("/compras/ordenes/{id}/detalle")
@@ -220,7 +228,7 @@ public class AlmacenApiController {
     public List<Map<String,Object>> solicitudesAnulacion() { return service.solicitudesAnulacion(); }
 
     @GetMapping("/reportes/stock-bajo")
-    @PreAuthorize("hasAuthority('INVENTARIO_CONSULTAR')")
+    @PreAuthorize("hasAnyAuthority('INVENTARIO_CONSULTAR','AUDITORIA_CONSULTAR')")
     public List<Map<String,Object>> stockBajo() { return service.alertasStock(); }
 
     @GetMapping("/reportes/trazabilidad")
@@ -231,6 +239,10 @@ public class AlmacenApiController {
     @PreAuthorize("hasAuthority('AUDITORIA_CONSULTAR')")
     public List<Map<String,Object>> reporteCompras() { return service.reporteCompras(); }
 
+    @GetMapping("/reportes/inventario")
+    @PreAuthorize("hasAuthority('AUDITORIA_CONSULTAR')")
+    public List<Map<String,Object>> reporteInventario() { return service.inventario(null); }
+
     @GetMapping("/reportes/salidas")
     @PreAuthorize("hasAuthority('AUDITORIA_CONSULTAR')")
     public List<Map<String,Object>> reporteSalidas() { return service.reporteSalidas(); }
@@ -239,25 +251,39 @@ public class AlmacenApiController {
     @PreAuthorize("hasAuthority('AUDITORIA_CONSULTAR')")
     public List<Map<String,Object>> auditoria() { return service.auditoria(); }
 
+    @GetMapping("/compras/ordenes/{id}/historial")
+    @PreAuthorize("hasAnyAuthority('OC_REGISTRAR','OC_AUTORIZAR','OC_REABRIR','AUDITORIA_CONSULTAR')")
+    public List<Map<String,Object>> historial(@PathVariable long id) { return service.historialOrden(id); }
+
+    @GetMapping("/salidas/{id}/evidencias")
+    @PreAuthorize("hasAnyAuthority('SALIDA_CONFIRMAR','AUDITORIA_CONSULTAR')")
+    public List<Map<String,Object>> evidencias(@PathVariable long id) { return service.evidencias(id); }
+
+    @GetMapping("/evidencias/{id}/archivo")
+    @PreAuthorize("hasAnyAuthority('SALIDA_CONFIRMAR','AUDITORIA_CONSULTAR')")
+    public org.springframework.http.ResponseEntity<org.springframework.core.io.Resource> archivo(@PathVariable long id) throws java.io.IOException { return service.descargarEvidencia(id); }
+
     private long userId(Principal p) { return service.usuarioId(p.getName()); }
 
     public record UsuarioRequest(@NotBlank String nombre,@Email @NotBlank String correo,String telefono,@NotBlank @Size(min=12,max=72) String password,
-        @Pattern(regexp="ADMINISTRADOR|ALMACEN|COMPRAS|GERENCIA|TALLER") String rol) {}
+        @NotBlank @NotNull @Pattern(regexp="ADMINISTRADOR|ALMACEN|COMPRAS|GERENCIA|TALLER") String rol) {}
     public record EstadoRequest(boolean activo) {}
-    public record ProveedorRequest(@Pattern(regexp="\\d{11}") String ruc,@NotBlank String razonSocial,String contacto,@Email String correo,String telefono,String direccion) {}
+    public record RolUsuarioRequest(@NotBlank @NotNull @Pattern(regexp="ADMINISTRADOR|ALMACEN|COMPRAS|GERENCIA|TALLER") String rol) {}
+    public record PermisosRolRequest(@NotNull List<@Positive Long> permisos) {}
+    public record ProveedorRequest(@NotNull @Pattern(regexp="\\d{11}") String ruc,@NotBlank String razonSocial,String contacto,@Email String correo,String telefono,String direccion) {}
     public record ProveedorUpdateRequest(@NotBlank String razonSocial,String contacto,@Email String correo,String telefono,String direccion,boolean activo) {}
-    public record ProductoRequest(@NotBlank String codigo,@NotBlank String nombre,String descripcion,@NotBlank String unidadMedida,@PositiveOrZero BigDecimal stockMinimo) {}
-    public record ProductoUpdateRequest(@NotBlank String nombre,String descripcion,@NotBlank String unidadMedida,@PositiveOrZero BigDecimal stockMinimo,boolean activo) {}
-    public record LineaCompraRequest(@Positive long productoId,@Positive BigDecimal cantidad,@PositiveOrZero BigDecimal precioUnitario) {}
-    public record OrdenCompraRequest(@Positive long proveedorId,@NotNull LocalDate fechaEmision,@Pattern(regexp="[A-Z]{3}") String moneda,String observacion,@NotEmpty List<@Valid LineaCompraRequest> lineas) {}
-    public record DecisionRequest(@Pattern(regexp="APROBADA|RECHAZADA") String decision,String comentario) {}
+    public record ProductoRequest(@NotBlank String codigo,@NotBlank String nombre,String descripcion,@NotBlank String unidadMedida,@NotNull @PositiveOrZero BigDecimal stockMinimo) {}
+    public record ProductoUpdateRequest(@NotBlank String nombre,String descripcion,@NotBlank String unidadMedida,@NotNull @PositiveOrZero BigDecimal stockMinimo,boolean activo) {}
+    public record LineaCompraRequest(@Positive long productoId,@NotNull @Positive BigDecimal cantidad,@NotNull @PositiveOrZero BigDecimal precioUnitario) {}
+    public record OrdenCompraRequest(@Positive long proveedorId,@NotNull LocalDate fechaEmision,@NotNull @Pattern(regexp="[A-Z]{3}") String moneda,String observacion,@NotEmpty List<@Valid LineaCompraRequest> lineas) {}
+    public record DecisionRequest(@NotNull @Pattern(regexp="APROBADA|RECHAZADA") String decision,String comentario) {}
     public record ReaperturaRequest(@NotBlank String motivo,boolean requiereNuevaAprobacion) {}
-    public record LineaRecepcionRequest(@Positive long productoId,@Positive BigDecimal recibida,@PositiveOrZero BigDecimal conforme,@PositiveOrZero BigDecimal rechazada) {}
+    public record LineaRecepcionRequest(@Positive long productoId,@NotNull @Positive BigDecimal recibida,@NotNull @PositiveOrZero BigDecimal conforme,@NotNull @PositiveOrZero BigDecimal rechazada) {}
     public record RecepcionRequest(@Positive long ordenCompraId,@Positive long almacenId,@NotBlank String guiaRemision,String observacion,@NotEmpty List<@Valid LineaRecepcionRequest> lineas) {}
-    public record IncidenciaRequest(Long productoId,@Pattern(regexp="DANIO|FALTANTE|SOBRANTE|DOCUMENTACION|OTRO") String tipo,@NotBlank String descripcion,@Pattern(regexp="CAMBIO|REEMBOLSO|ACEPTACION_PARCIAL|PENDIENTE") String accion) {}
-    public record IncidenciaEstadoRequest(@Pattern(regexp="ABIERTA|EN_GESTION|RESUELTA") String estado,@Pattern(regexp="CAMBIO|REEMBOLSO|ACEPTACION_PARCIAL|PENDIENTE") String accion) {}
-    public record LineaRequerimientoRequest(@Positive long productoId,@Positive BigDecimal cantidad) {}
-    public record RequerimientoRequest(String placaUnidad,@Pattern(regexp="PREVENTIVO|CORRECTIVO|SINIESTRO|OTRO") String tipoMantenimiento,@Pattern(regexp="BAJA|MEDIA|ALTA|URGENTE") String prioridad,@NotBlank String motivo,@NotEmpty List<@Valid LineaRequerimientoRequest> lineas) {}
+    public record IncidenciaRequest(Long productoId,@NotNull @Pattern(regexp="DANIO|FALTANTE|SOBRANTE|DOCUMENTACION|OTRO") String tipo,@NotBlank String descripcion,@NotNull @Pattern(regexp="CAMBIO|REEMBOLSO|ACEPTACION_PARCIAL|PENDIENTE") String accion) {}
+    public record IncidenciaEstadoRequest(@NotNull @Pattern(regexp="ABIERTA|EN_GESTION|RESUELTA") String estado,@NotNull @Pattern(regexp="CAMBIO|REEMBOLSO|ACEPTACION_PARCIAL|PENDIENTE") String accion) {}
+    public record LineaRequerimientoRequest(@Positive long productoId,@NotNull @Positive BigDecimal cantidad) {}
+    public record RequerimientoRequest(String placaUnidad,@NotNull @Pattern(regexp="PREVENTIVO|CORRECTIVO|SINIESTRO|OTRO") String tipoMantenimiento,@NotNull @Pattern(regexp="BAJA|MEDIA|ALTA|URGENTE") String prioridad,@NotBlank String motivo,@NotEmpty List<@Valid LineaRequerimientoRequest> lineas) {}
     public record SalidaRequest(@Positive long requerimientoId,@Positive long almacenId,@NotBlank String entregadaA) {}
     public record MotivoRequest(@NotBlank @Size(max=500) String motivo) {}
     public record ResolucionRequest(boolean aprobar) {}

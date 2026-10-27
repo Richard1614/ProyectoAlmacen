@@ -10,12 +10,13 @@ anulaciones, reaperturas, auditoría y reportes.
 
 - Java 17 y Spring Boot 4
 - Spring Security con autenticación HTTP Basic y BCrypt
-- Spring Data JPA para usuarios, roles y permisos
+- Spring Data JPA para autenticación y perfiles de usuario
 - JDBC transaccional para procedimientos de inventario
 - MySQL 8
+- Interfaz responsive en HTML, CSS y JavaScript, con Bootstrap 5.3.8 y recursos visuales locales
 - Maven Wrapper
 
-El esquema físico contiene 22 tablas, dos vistas, cinco procedimientos
+El esquema físico contiene 24 tablas, dos vistas, cinco procedimientos
 almacenados y cinco triggers. Está en `database/01_schema.sql`.
 La correspondencia completa con RF-01 a RF-20 está en
 `docs/trazabilidad-requisitos.md`.
@@ -50,7 +51,8 @@ Todas las rutas usan el prefijo `/api/v1` y validan permisos en el servidor.
 | Proceso | Rutas principales |
 |---|---|
 | Sesión | `GET /sesion` |
-| Productos | `GET/POST /productos` |
+| Usuarios y permisos | `GET/POST /usuarios`, `PATCH /usuarios/{id}/rol`, `PUT /roles/{id}/permisos` |
+| Productos | `GET/POST /productos`, `PUT /productos/{id}` |
 | Inventario | `GET /inventario` |
 | Compras | `POST /compras/ordenes`, `POST /compras/ordenes/{id}/decision` |
 | Reapertura | `POST /compras/ordenes/{id}/reabrir` |
@@ -62,6 +64,9 @@ Todas las rutas usan el prefijo `/api/v1` y validan permisos en el servidor.
 
 Las evidencias admiten JPG, PNG o PDF, con un máximo de 5 MB. Se guardan fuera
 de los recursos públicos en `data/evidencias`, carpeta ignorada por Git.
+Bootstrap se carga desde jsDelivr y la aplicación conserva sus estilos propios
+como respaldo visual. La imagen de bienvenida está incluida en los recursos del
+proyecto y no requiere conexión a un servicio de fotografías.
 
 ## Ejecutar pruebas
 
@@ -69,8 +74,30 @@ de los recursos públicos en `data/evidencias`, carpeta ignorada por Git.
 .\mvnw.cmd test
 ```
 
-La prueba automatizada valida que el esquema mantenga al menos 12 tablas y que
-incluya procedimientos, triggers, trazabilidad y hash de contraseñas.
+Las pruebas verifican permisos de la API, validaciones, hash de contraseñas,
+reglas de edición, solicitudes y controles de evidencias. Los escenarios de
+integración MySQL se omiten si no se configura `TEST_MYSQL_URL`. Para ejecutarlos:
+
+```powershell
+$env:TEST_MYSQL_URL = "jdbc:mysql://localhost:3306/"
+$env:TEST_MYSQL_USER = "USUARIO_DE_PRUEBAS"
+$env:TEST_MYSQL_PASSWORD = "CLAVE_DE_PRUEBAS"
+.\mvnw.cmd test
+```
+
+La cuenta de pruebas necesita crear y eliminar bases. La suite crea una base
+aleatoria `austral_test_*` y elimina únicamente esa base al terminar. No utiliza
+`austral_almacen`. Ver escenarios y criterios en `docs/validacion-funcional.md`.
+
+La interfaz se sirve mediante Thymeleaf; las interacciones usan JavaScript y la
+API. JPA gestiona autenticación y escritura del catálogo; JDBC ejecuta los
+procedimientos de inventario dentro de transacciones Spring compartidas.
+
+En instalaciones existentes aplicar `database/04_integridad_historial.sql`
+después de `03_requirements_update.sql`. Hacer primero un respaldo según
+`docs/operacion.md`. La migración añade historial y reemplaza procedimientos,
+sin borrar datos. Toda edición de OC vuelve a aprobación gerencial y conserva
+la versión anterior. El historial anterior a esta migración no se puede reconstruir.
 
 ## Colaboración
 

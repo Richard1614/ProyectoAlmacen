@@ -6,7 +6,7 @@ implementación operativa de Austral Pilot y su interfaz web por roles.
 | Requisito | Implementación |
 |---|---|
 | RF-01 Autenticación | Spring Security HTTP Basic, `SecurityUserDetailsService` y BCrypt |
-| RF-02 Usuarios roles y permisos | Tablas `usuario`, `rol`, `permiso`, `rol_permiso`; usuarios, estados y matriz de permisos en la interfaz |
+| RF-02 Usuarios roles y permisos | Tablas `usuario`, `rol`, `permiso`, `rol_permiso`; alta/estado de usuarios, cambio de rol y edición de permisos por rol en la interfaz |
 | RF-03 Catálogo | Tabla `producto`; API GET POST PUT `/api/v1/productos` |
 | RF-04 Stock por almacén | Tablas `almacen`, `inventario`; GET `/api/v1/inventario` |
 | RF-05 Órdenes de compra | `orden_compra`, `detalle_orden_compra`; API `/api/v1/compras/ordenes` |

@@ -1,6 +1,6 @@
 # Base de datos Austral Pilot
 
-El script `01_schema.sql` crea 23 tablas, dos vistas, cinco procedimientos
+El script `01_schema.sql` crea 24 tablas, dos vistas, cinco procedimientos
 almacenados y cinco triggers. Incluye roles y permisos, pero no incluye
 usuarios ni contraseñas públicas. Es compatible con MySQL 8 y MariaDB/XAMPP.
 
@@ -22,3 +22,9 @@ por una recepción y un movimiento auditable.
 
 `03_requirements_update.sql` se aplica a instalaciones existentes para añadir
 el flujo formal de solicitud y autorización de reaperturas de OC.
+
+`04_integridad_historial.sql` añade el historial de versiones y corrige los
+procedimientos de stock. Aplicarlo después del script 03 en instalaciones
+existentes, con la aplicación detenida y un respaldo verificado. Las
+transacciones quedan a cargo del servicio Spring; las llamadas manuales deben
+envolverse en START TRANSACTION / COMMIT y usar ROLLBACK ante errores.
